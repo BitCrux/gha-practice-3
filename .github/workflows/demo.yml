@@ -29,12 +29,17 @@ jobs:
         uses: actions/upload-artifact@v3  # action to upload artifacts -> https://github.com/marketplace/actions/upload-a-build-artifact
         with:
           name: dist-files  # name of the directory containing the artifacts
-          path: | # paths to the artifacts (also multiple paths can be used with |)
-            dist
-            package.json
+          path: dist # path to the artifacts directory
   deploy:
-    needs: build
+    needs: build  # must run after build job due to required artifact creation and upload
     runs-on: ubuntu-latest
     steps:
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3  # since the jobs run on own runners, this job has to download the produced artifacts (produced by "upload artifacts" step) -> https://github.com/marketplace/actions/download-a-build-artifact
+        with:
+          name: dist-files  # name of the directory containing the artifacts; downloads dist-files and unzips it
+      - name: Output contents
+        run: ls # lists all the content of the folder dist-files
       - name: Deploy
-        run: echo "Deploying..."
+        run: echo "Deploying..."  # in real world this step stores the artifacts to a web server (web hosting provider is required, most provide their own action to upload files to them)
+
