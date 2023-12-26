@@ -24,7 +24,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build website
-        run: npm run build
+        run: npm run build  # produces artifacts
+      - name: upload artifacts
+        uses: actions/upload-artifact@v3  # action to upload artifacts -> https://github.com/marketplace/actions/upload-a-build-artifact
+        with:
+          name: dist-files  # name of the directory containing the artifacts
+          path: | # paths to the artifacts (also multiple paths can be used with |)
+            dist
+            package.json
   deploy:
     needs: build
     runs-on: ubuntu-latest
