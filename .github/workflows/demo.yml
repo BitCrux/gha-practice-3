@@ -9,8 +9,16 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
+      - name: Cache dependencies  # step to cache dependencies
+        uses: actions/cache@v3  # action to cache https://github.com/marketplace/actions/cache
+        with: # requires parameters
+          path: ~/.npm  # path to the files that should be cached. For the Linux runner with node dependencies is is this path used by the npm tool for its internal dependency cache. (see action documentation -> implementation examples)
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }} # key is used for retrieving the cache and creating the npm cache folder on the runner machine. Also a dynamic element is added which will change after the cache is discarded. Idea is, whenever the package-lock.json file changes because a dependency is updated, the hash changes. Means new dependencies will be cached again -> discard old cache and use new! (reinstall dependencies)
+      # because different jobs & workflows use different machines the npm cache created by default wont be used. 
+      # Therefore with this cache action GitHub knows that it should store the npm cache folder in some GitHub cloud server. It can be then used by other jobs & workflows.
+      # Cache is central and available through other jobs and workflows!
       - name: Install dependencies
-        run: npm ci
+        run: npm ci # will use the npm cache folder if it exists, otherwise dependencies will be downloaded and cache folder will be created.
       - name: Lint code
         run: npm run lint
       - name: Test code
@@ -23,6 +31,13 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v3
+      - name: Cache dependencies  # step to cache dependencies
+        uses: actions/cache@v3  # action to cache https://github.com/marketplace/actions/cache
+        with: # requires parameters
+          path: ~/.npm  # path to the files that should be cached. For the Linux runner with node dependencies is is this path used by the npm tool for its internal dependency cache. (see action documentation -> implementation examples)
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }} # key is used for retrieving the cache and creating the npm cache folder on the runner machine. Also a dynamic element is added which will change after the cache is discarded. Idea is, whenever the package-lock.json file changes because a dependency is updated, the hash changes. Means new dependencies will be cached again -> discard old cache and use new! (reinstall dependencies)
+      # because different jobs & workflows use different machines the npm cache created by default wont be used. 
+      # Therefore with this cache action GitHub knows that it should store the npm cache folder in some GitHub cloud server. It can be then used by other jobs & workflows.
       - name: Install dependencies
         run: npm ci
       - name: Build website
